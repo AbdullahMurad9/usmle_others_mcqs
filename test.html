@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MCQ Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --text: #0b0f14; --panel: #f0f4fa; --card: #ffffff;
+      --bg: #e8eef7; --muted: #555; --border: #c0cfe8;
+      --blue: #2c76b3; --good: #2ecc71; --bad: #e74c3c;
+    }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    }
+
+    /* TOP HEADER */
+    #topBar {
+      background: #1a3a5c; color: white;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px; font-size: 13px; flex-shrink: 0;
+    }
+    #topBar .left { display: flex; align-items: center; gap: 16px; }
+    #topBar .nav-arrows { display: flex; gap: 6px; }
+    #topBar .nav-arrows button {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: white; padding: 4px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 14px; font-weight: bold;
+    }
+    #topBar .nav-arrows button:hover { background: rgba(255,255,255,0.25); }
+    #topBar .nav-arrows button:disabled { opacity: 0.3; cursor: default; }
+    #topBar .right { display: flex; gap: 10px; align-items: center; }
+    #topBar .right button {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+    }
+    #topBar .right button.danger-btn {
+      background: rgba(231,76,60,0.4); border-color: rgba(231,76,60,0.6);
+    }
+    #topBar .right button:hover { background: rgba(255,255,255,0.25); }
+    #qLabel { font-weight: 700; font-size: 14px; }
+    #progressBar {
+      height: 6px; width: 160px; background: rgba(255,255,255,0.2);
+      border-radius: 999px; overflow: hidden;
+    }
+    #progressBar > div { height: 100%; width: 0%; background: #2ecc71; transition: width 0.3s; }
+
+    /* MAIN LAYOUT */
+    #main {
+      display: flex; flex: 1; overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR */
+    #sidebar {
+      width: 60px; background: #1a3a5c;
+      overflow-y: auto; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 8px 0; gap: 4px;
+    }
+    .qnum-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1); color: white;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; position: relative;
+    }
+    .qnum-btn:hover { background: rgba(255,255,255,0.25); }
+    .qnum-btn.active { border-color: #7ab7ff; background: rgba(122,183,255,0.3); }
+    .qnum-btn.correct { border-color: #2ecc71; background: rgba(46,204,113,0.2); }
+    .qnum-btn.wrong { border-color: #e74c3c; background: rgba(231,76,60,0.2); }
+    .qnum-btn.skipped { border-color: #f1c40f; background: rgba(241,196,15,0.15); }
+
+    /* CONTENT AREA */
+    #content {
+      flex: 1; overflow-y: auto; padding: 20px 28px;
+      background: #f5f7fb;
+    }
+
+    #qDeck {
+      font-size: 12px; color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    #question {
+      background: white; border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px;
+      font-size: 18px; line-height: 1.6; margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    #options { margin-bottom: 12px; }
+    .opt {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: 8px; background: white;
+      margin-bottom: 8px; cursor: pointer;
+      font-size: 17px; line-height: 1.5;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .opt:hover { border-color: var(--blue); background: #f0f6ff; }
+    .opt input { margin-top: 3px; flex-shrink: 0; }
+    .opt.correct {
+      border-color: #2ecc71; background: #f0fff5;
+    }
+    .opt.wrongpick {
+      border-color: #e74c3c; background: #fff5f5;
+    }
+
+    #feedback {
+      padding: 10px 14px; border-radius: 8px;
+      border: 1px solid var(--border); background: white;
+      font-size: 15px; font-weight: 600; margin-bottom: 10px;
+      display: none;
+    }
+    #feedback.good { border-color: #2ecc71; background: #f0fff5; color: #1a7a40; }
+    #feedback.bad { border-color: #e74c3c; background: #fff5f5; color: #a01818; }
+
+    #submitArea {
+      margin-bottom: 10px;
+    }
+    #submitBtn {
+      background: #2c76b3; color: white; border: none;
+      padding: 10px 28px; border-radius: 8px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    #submitBtn:hover { background: #1f5a8a; }
+
+    details {
+      border: 1px solid var(--border); border-radius: 10px;
+      background: white; padding: 12px 16px;
+    }
+    details summary {
+      cursor: pointer; font-weight: 700; font-size: 15px; color: #1a3a5c;
+    }
+    #explanation { margin-top: 10px; font-size: 16px; line-height: 1.6; }
+
+/* Table styles for explanation section */
+#explanation table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 15px;
+}
+#explanation table th,
+#explanation table td {
+  border: 1px solid #c0cfe8;
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+#explanation table th {
+  background: #e8eef7;
+  font-weight: 700;
+  color: #1a3a5c;
+}
+#explanation table tr:nth-child(even) td {
+  background: #f5f8fd;
+}
+#explanation table tr:hover td {
+  background: #eef3fb;
+}
+#explanation table caption {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: #1a3a5c;
+  text-align: center;
+}
+
+    /* RESULTS PAGE */
+    #results {
+      display: none; padding: 40px; text-align: center;
+    }
+    #results h2 { font-size: 26px; margin-bottom: 20px; color: #1a3a5c; }
+    .kpi {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      justify-content: center; margin-bottom: 24px;
+    }
+    .kpi .box {
+      background: white; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 24px; min-width: 130px;
+    }
+    .kpi .num { font-size: 28px; font-weight: 800; color: #1a3a5c; }
+    .kpi .lbl { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .res-actions { display: flex; gap: 10px; justify-content: center; }
+    .res-actions button {
+      padding: 10px 24px; border-radius: 8px;
+      border: 1px solid var(--border); background: white;
+      font-size: 15px; cursor: pointer; font-weight: 600;
+    }
+    .res-actions button:hover { background: #f0f4fa; }
+
+    .hidden { display: none !important; }
+#aiBox {
+  margin-top: 14px;
+  border: 1.5px solid #c0cfe8;
+  border-radius: 10px;
+  background: white;
+  overflow: hidden;
+}
+#aiBox .ai-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: #f0f6ff;
+  border-bottom: 1px solid #c0cfe8;
+}
+#aiBox .ai-header span { font-weight: 700; font-size: 14px; color: #1a3a5c; }
+#askAiBtn {
+  background: #2c76b3; color: white; border: none;
+  padding: 6px 16px; border-radius: 6px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+#askAiBtn:hover { background: #1f5a8a; }
+#askAiBtn:disabled { background: #aaa; cursor: default; }
+#aiResponse {
+  padding: 14px 16px;
+  font-size: 15px; line-height: 1.7;
+  color: #222; white-space: pre-wrap;
+  display: none;
+}
+    @media (max-width: 600px) {
+      #sidebar { width: 44px; }
+      .qnum-btn { width: 30px; height: 30px; font-size: 10px; }
+      #content { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div id="topBar">
+    <div class="left">
+      <span id="qLabel">Q 1 / 40</span>
+      <div class="nav-arrows">
+        <button id="prevBtn" disabled>&#8592;</button>
+        <button id="nextBtn" disabled>&#8594;</button>
+      </div>
+      <div id="progressBar"><div></div></div>
+      <span id="answeredCount" style="font-size:12px;opacity:0.8">Answered: 0 / 40</span>
+      <span id="totalTimer" style="font-size:13px;font-weight:700;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:6px;">⏱ 0:00</span>
+    </div>
+    <div class="right">
+      <span id="testNameLabel" style="opacity:0.7;font-size:12px"></span>
+      <button id="submitBtn2">Submit</button>
+      <button id="finishBtn">Finish Test</button>
+      <button id="pauseBtn">⏸ Pause & Save</button>
+      <button class="danger-btn" id="quitBtn">Quit &amp; Save</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" id="questionNav"></div>
+
+    <!-- CONTENT -->
+    <div id="content">
+      <div id="qDeck"></div>
+      <div id="question"></div>
+      <form id="options"></form>
+      <div id="submitArea">
+        <button id="submitBtn">Submit Answer</button>
+      </div>
+      <div id="feedback"></div>
+      <div id="qTimeDisplay" style="display:none;font-size:13px;color:#555;margin-bottom:8px;">⏱ Time on this question: <b id="qTimeValue">0s</b></div>
+      <details id="explainWrap" class="hidden">
+        <summary>Explanation</summary>
+        <div id="explanation"></div>
+      </details>
+
+      <div id="aiBox" style="display:none;">
+        <div class="ai-header">
+          <span>🤖 AI Explanation</span>
+          <button id="askAiBtn">Ask AI</button>
+        </div>
+        <div id="aiResponse"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <h2>Test Complete 🎉</h2>
+    <div class="kpi">
+      <div class="box"><div class="num" id="resCorrect">0</div><div class="lbl">Correct</div></div>
+      <div class="box"><div class="num" id="resWrong">0</div><div class="lbl">Wrong</div></div>
+      <div class="box"><div class="num" id="resUnanswered">0</div><div class="lbl">Unanswered</div></div>
+      <div class="box"><div class="num" id="resScore">0%</div><div class="lbl">Score</div></div>
+    </div>
+    <div class="res-actions">
+      <button onclick="window.close()">Close Tab</button>
+    </div>
+  </div>
+
+  <script src="mcqs.js"></script>
+  <script>
+    "use strict";
+    const STORAGE_KEY = "mcqStudyRecord_v1";
+const CLAUDE_API_KEY = "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";
+
+    const MCQS = (window.MCQS || []).map((q) => ({
+      id: q.i, deck: q.d || "", tags: q.t || [],
+      questionHtml: q.q || "", optionsHtml: q.o || [],
+      correctIndex: q.a, correctText: q.at || "", explanationHtml: q.e || "",
+    }));
+
+    const el = (id) => document.getElementById(id);
+
+    function safeJsonParse(s, fallback) {
+      try { return JSON.parse(s); } catch(e) { return fallback; }
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const st = safeJsonParse(raw, null) || { v:1, byId:{}, lastTest:null, testLibrary:[] };
+      if (!st.testLibrary) st.testLibrary = [];
+      if (!st.byId) st.byId = {};
+      return st;
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+    let session = safeJsonParse(localStorage.getItem("mcq_active_session"), null);
+
+    // --- TIMER VARIABLES ---
+    const previousElapsed = (session && session.totalTimeElapsed) ? session.totalTimeElapsed * 1000 : 0;
+    let testStartTime = Date.now() - previousElapsed;
+    let testTimerInterval = null;
+    let qStartTime = Date.now();
+    if (!session.timePerQuestion) session.timePerQuestion = {};
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return m + ":" + String(s).padStart(2, "0");
+    }
+
+    function startTestTimer() {
+      testTimerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - testStartTime) / 1000);
+        el("totalTimer").textContent = "⏱ " + formatTime(elapsed);
+      }, 1000);
+    }
+
+    function stopTestTimer() {
+      clearInterval(testTimerInterval);
+    }
+
+    function startQTimer() {
+      qStartTime = Date.now();
+    }
+
+    function stopQTimer(qid) {
+      const spent = Math.floor((Date.now() - qStartTime) / 1000);
+      session.timePerQuestion[qid] = (session.timePerQuestion[qid] || 0) + spent;
+    }
+
+    function pauseTest() {
+      if (!confirm("Pause and save this test? You can resume it from the Test Library.")) return;
+      stopQTimer(session.ids[session.idx]);
+      stopTestTimer();
+      let correct = 0, wrong = 0, unanswered = 0;
+      for (const id of session.ids) {
+        const a = session.answers[id];
+        if (!a || a.choice == null) unanswered++;
+        else if (a.correct === true) correct++;
+        else wrong++;
+      }
+      const total = session.ids.length;
+      const score = total ? Math.round((correct / total) * 100) : 0;
+      const totalTimeElapsed = Math.floor((Date.now() - testStartTime) / 1000);
+      state.testLibrary.push({
+        name: session.name || "Unnamed Test",
+        topic: session.topic || "All Topics",
+        subTopic: session.subTopic || "",
+        subSubTopic: session.subSubTopic || "",
+        ids: session.ids.slice(),
+        answers: { ...session.answers },
+        timePerQuestion: { ...session.timePerQuestion },
+        totalTimeElapsed,
+        correct, wrong, unanswered, score,
+        finishedAt: Date.now(),
+        paused: true,
+        pausedAt: session.idx
+      });
+      saveState();
+      localStorage.removeItem("mcq_active_session");
+      window.close();
+    }
+
+    if (!session) {
+      document.body.innerHTML = "<div style='padding:40px;font-size:18px'>No active session. Go back to <a href='index.html'>index.html</a> and start a test.</div>";
+    }
+
+    function getQuestionById(id) {
+      return MCQS.find((q) => q.id === id);
+    }
+
+    function markOptions(q, pickedIdx) {
+      const optionEls = Array.from(el("options").querySelectorAll(".opt"));
+      for (const optEl of optionEls) {
+        const idx = Number(optEl.getAttribute("data-idx"));
+        optEl.classList.remove("correct", "wrongpick");
+        if (q.correctIndex && idx === q.correctIndex) optEl.classList.add("correct");
+        if (pickedIdx && idx === pickedIdx && q.correctIndex && pickedIdx !== q.correctIndex)
+          optEl.classList.add("wrongpick");
+      }
+    }
+
+    function updateSidebar() {
+      const sidebar = el("sidebar");
+      sidebar.innerHTML = "";
+      session.ids.forEach((id, i) => {
+        const btn = document.createElement("button");
+        btn.className = "qnum-btn";
+        btn.textContent = i + 1;
+        const ans = session.answers[id];
+        if (i === session.idx) btn.classList.add("active");
+        else if (ans && ans.choice != null) {
+          if (ans.correct === true) btn.classList.add("correct");
+          else if (ans.correct === false) btn.classList.add("wrong");
+        } else if (ans && ans.choice == null) {
+          btn.classList.add("skipped");
+        }
+        btn.addEventListener("click", () => {
+          session.idx = i;
+          renderQuestion();
+        });
+        sidebar.appendChild(btn);
+      });
+    }
+
+    function renderQuestion() {
+      const total = session.ids.length;
+      const qid = session.ids[session.idx];
+      const q = getQuestionById(qid);
+      const n = session.idx + 1;
+
+      // top bar
+      el("qLabel").textContent = `Q ${n} / ${total}`;
+      el("testNameLabel").textContent = session.name || "";
+      const pct = Math.round((Object.keys(session.answers).length / total) * 100);
+      el("progressBar").firstElementChild.style.width = pct + "%";
+      el("answeredCount").textContent = `Answered: ${Object.keys(session.answers).length} / ${total}`;
+
+      // nav arrows
+      el("prevBtn").disabled = session.idx === 0;
+      el("nextBtn").disabled = session.idx === total - 1;
+
+      // question
+      el("qDeck").textContent = q.deck ? "Deck: " + q.deck : "";
+      el("question").innerHTML = q.questionHtml || "<i>(empty)</i>";
+
+      // options
+      const form = el("options");
+      form.innerHTML = "";
+      q.optionsHtml.forEach((optHtml, i) => {
+        const idx = i + 1;
+        const div = document.createElement("label");
+        div.className = "opt";
+        div.setAttribute("data-idx", String(idx));
+        const input = document.createElement("input");
+        input.type = "radio"; input.name = "opt"; input.value = String(idx);
+        const content = document.createElement("div");
+        content.innerHTML = optHtml || "";
+        div.appendChild(input); div.appendChild(content);
+        div.addEventListener("click", (e) => {
+          if (e.target.tagName.toLowerCase() !== "a") input.checked = true;
+        });
+        form.appendChild(div);
+      });
+
+      // reset state
+      el("feedback").style.display = "none";
+      el("feedback").className = "";
+      el("explainWrap").classList.add("hidden");
+      el("explanation").innerHTML = "";
+      el("submitBtn").classList.remove("hidden");
+      el("submitArea").classList.remove("hidden");
+      el("qTimeDisplay").style.display = "none";
+      el("aiBox").style.display = "none";
+      el("aiResponse").style.display = "none";
+
+      startQTimer();
+
+      // show saved time if already answered
+      const savedTime = session.timePerQuestion[qid];
+      if (savedTime != null) {
+        el("qTimeValue").textContent = formatTime(savedTime);
+        el("qTimeDisplay").style.display = "block";
+      }
+
+      // if already answered — lock and show
+      const already = session.answers[qid];
+      if (already && already.choice != null) {
+        const radios = el("options").querySelectorAll("input[type=radio]");
+        radios.forEach(r => r.disabled = true);
+        const r = el("options").querySelector(`input[value="${already.choice}"]`);
+        if (r) r.checked = true;
+        markOptions(q, already.choice);
+        el("submitBtn").classList.add("hidden");
+        el("submitArea").classList.add("hidden");
+el("aiBox").style.display = "block";
+      el("aiResponse").style.display = "none";
+      el("askAiBtn").textContent = "Ask AI";
+      el("askAiBtn").disabled = false;
+        el("explainWrap").classList.remove("hidden");
+        el("explanation").innerHTML = q.explanationHtml || "<i>(No explanation)</i>";
+        let msg = already.correct === true ? "Correct ✅" : "Wrong ❌";
+        let cls = already.correct === true ? "good" : "bad";
+        el("feedback").textContent = msg;
+        el("feedback").style.display = "block";
+        el("feedback").className = cls;
+      }
+
+      // review mode — unanswered shows as skipped
+      if (session.mode === "review") {
+        const saved = session.answers[qid];
+        const picked = saved ? saved.choice : null;
+        const radios = el("options").querySelectorAll("input[type=radio]");
+        radios.forEach(r => r.disabled = true);
+        if (picked != null) {
+          const r = el("options").querySelector(`input[value="${picked}"]`);
+          if (r) r.checked = true;
+          markOptions(q, picked);
+          let msg = saved.correct === true ? "Correct ✅" : "Wrong ❌";
+          let cls = saved.correct === true ? "good" : "bad";
+          el("feedback").textContent = msg;
+          el("feedback").style.display = "block";
+          el("feedback").className = cls;
+        } else {
+          el("feedback").textContent = "You skipped this question.";
+          el("feedback").style.display = "block";
+        }
+        el("submitBtn").classList.add("hidden");
+        el("submitArea").classList.add("hidden");
+        el("aiBox").style.display = "block";
+        el("aiResponse").style.display = "none";
+        el("askAiBtn").textContent = "Ask AI";
+        el("askAiBtn").disabled = false;
+        el("explainWrap").classList.remove("hidden");
+        el("explanation").innerHTML = q.explanationHtml || "<i>(No explanation)</i>";
+      }
+
+      updateSidebar();
+    }
+
+    function getSelectedIndex() {
+      const checked = el("options").querySelector("input[type=radio]:checked");
+      return checked ? Number(checked.value) : null;
+    }
+
+    function submitAnswer() {
+      const qid = session.ids[session.idx];
+      const q = getQuestionById(qid);
+      const picked = getSelectedIndex();
+      const alreadyAnswered = session.answers[qid] && session.answers[qid].choice != null;
+
+      let isCorrect = null;
+      if (picked != null && q.correctIndex != null) isCorrect = picked === q.correctIndex;
+      session.answers[qid] = { choice: picked, correct: isCorrect };
+
+      if (!alreadyAnswered) {
+        const key = String(qid);
+        const r = state.byId[key] || { a:0, c:0, w:0, lc:null, lr:null, ls:null };
+        r.a = (r.a||0)+1; r.lc = picked; r.ls = Date.now();
+        if (isCorrect === true) { r.c=(r.c||0)+1; r.lr=true; }
+        else if (isCorrect === false) { r.w=(r.w||0)+1; r.lr=false; }
+        else r.lr = null;
+        state.byId[key] = r;
+        saveState();
+      }
+
+      let msg = "Unanswered.", cls = "";
+      if (picked != null && isCorrect === true) { msg = "Correct ✅"; cls = "good"; }
+      else if (picked != null && isCorrect === false) { msg = "Wrong ❌"; cls = "bad"; }
+      el("feedback").textContent = msg;
+      el("feedback").style.display = "block";
+      el("feedback").className = cls;
+      markOptions(q, picked);
+      el("explanation").innerHTML = q.explanationHtml || "<i>(No explanation)</i>";
+      el("explainWrap").classList.remove("hidden");
+      el("submitBtn").classList.add("hidden");
+      el("submitArea").classList.add("hidden");
+      el("aiBox").style.display = "block";
+      el("aiResponse").style.display = "none";
+      el("askAiBtn").textContent = "Ask AI";
+      el("askAiBtn").disabled = false;
+
+      stopQTimer(qid);
+      const qSecs = session.timePerQuestion[qid] || 0;
+      el("qTimeValue").textContent = formatTime(qSecs);
+      el("qTimeDisplay").style.display = "block";
+
+      updateSidebar();
+    }
+
+    function saveSessionToLibrary() {
+      let correct = 0, wrong = 0, unanswered = 0;
+      for (const id of session.ids) {
+        const a = session.answers[id];
+        if (!a || a.choice == null) unanswered++;
+        else if (a.correct === true) correct++;
+        else wrong++;
+      }
+      const total = session.ids.length;
+      const score = total ? Math.round((correct / total) * 100) : 0;
+      state.testLibrary.push({
+        name: session.name || "Unnamed Test",
+        topic: session.topic || "All Topics",
+        subTopic: session.subTopic || "",
+        subSubTopic: session.subSubTopic || "",
+        ids: session.ids.slice(),
+        answers: { ...session.answers },
+        timePerQuestion: { ...session.timePerQuestion },
+        totalTimeElapsed: Math.floor((Date.now() - testStartTime) / 1000),
+        correct, wrong, unanswered, score,
+        finishedAt: Date.now(),
+        paused: false
+      });
+      state.lastTest = {
+        ids: session.ids.slice(),
+        wrongIds: session.ids.filter(id => session.answers[id] && session.answers[id].correct === false),
+        correctIds: session.ids.filter(id => session.answers[id] && session.answers[id].correct === true),
+        finishedAt: Date.now()
+      };
+      saveState();
+      localStorage.removeItem("mcq_active_session");
+    }
+
+    function finishTest() {
+      stopQTimer(session.ids[session.idx]);
+      stopTestTimer();
+      if (!session.mode) saveSessionToLibrary();
+      el("main").style.display = "none";
+      el("topBar").style.display = "none";
+      el("results").style.display = "block";
+      let correct = 0, wrong = 0, unanswered = 0;
+      for (const id of session.ids) {
+        const a = session.answers[id];
+        if (!a || a.choice == null) unanswered++;
+        else if (a.correct === true) correct++;
+        else wrong++;
+      }
+      const score = Math.round((correct / session.ids.length) * 100);
+      el("resCorrect").textContent = correct;
+      el("resWrong").textContent = wrong;
+      el("resUnanswered").textContent = unanswered;
+      el("resScore").textContent = score + "%";
+    }
+
+    function quitTest() {
+      stopQTimer(session.ids[session.idx]);
+      stopTestTimer();
+      if (session.mode === "review") { window.close(); return; }
+      if (confirm("Save this test to library before quitting?")) {
+        saveSessionToLibrary();
+      } else {
+        localStorage.removeItem("mcq_active_session");
+      }
+      window.close();
+    }
+
+    el("submitBtn").addEventListener("click", submitAnswer);
+    el("submitBtn2").addEventListener("click", submitAnswer);
+    el("finishBtn").addEventListener("click", finishTest);
+    el("quitBtn").addEventListener("click", quitTest);
+    el("pauseBtn").addEventListener("click", pauseTest);
+    el("prevBtn").addEventListener("click", () => {
+      stopQTimer(session.ids[session.idx]);
+      session.idx -= 1;
+      startQTimer();
+      renderQuestion();
+    });
+    el("nextBtn").addEventListener("click", () => {
+      stopQTimer(session.ids[session.idx]);
+      session.idx += 1;
+      startQTimer();
+      renderQuestion();
+    });
+
+async function askAI() {
+      const btn = el("askAiBtn");
+      const responseBox = el("aiResponse");
+      const qid = session.ids[session.idx];
+      const q = getQuestionById(qid);
+      const ans = session.answers[qid];
+
+      const optionLetters = ["A", "B", "C", "D", "E"];
+      const optionsText = q.optionsHtml.map((o, i) => {
+        const letter = optionLetters[i] || (i+1);
+        const text = o.replace(/<[^>]+>/g, "").trim();
+        return `${letter}. ${text}`;
+      }).join("\n");
+
+      const questionText = q.questionHtml.replace(/<[^>]+>/g, "").trim();
+      const correctLetter = optionLetters[(q.correctIndex || 1) - 1];
+      const pickedLetter = ans && ans.choice != null ? optionLetters[ans.choice - 1] : "Not answered";
+      const wasCorrect = ans ? ans.correct : null;
+
+      const prompt = `You are a medical/exam tutor. A student just answered an MCQ question.
+
+Question:
+${questionText}
+
+Options:
+${optionsText}
+
+Correct Answer: ${correctLetter}
+Student's Answer: ${pickedLetter} (${wasCorrect === true ? "Correct ✅" : wasCorrect === false ? "Wrong ❌" : "Skipped"})
+
+Please explain:
+1. Why the correct answer is right
+2. Why the other options are wrong (briefly)
+3. A key concept to remember
+
+Keep it clear and concise.`;
+
+      btn.disabled = true;
+      btn.textContent = "Loading...";
+      responseBox.style.display = "block";
+      responseBox.textContent = "⏳ Getting AI explanation...";
+
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": CLAUDE_API_KEY,
+            "anthropic-version": "2023-06-01",
+            "anthropic-dangerous-direct-browser-access": "true"
+          },
+          body: JSON.stringify({
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 600,
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+        const data = await res.json();
+        const text = data.content && data.content[0] ? data.content[0].text : "No response.";
+        responseBox.textContent = text;
+        btn.textContent = "Ask Again";
+        btn.disabled = false;
+      } catch(e) {
+        responseBox.textContent = "❌ Error getting AI response. Check your API key.";
+        btn.textContent = "Retry";
+        btn.disabled = false;
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      if (e.target.id === "askAiBtn") askAI();
+    });
+
+    if (session) {
+      startTestTimer();
+      startQTimer();
+      renderQuestion();
+    }
+  </script>
+</body>
+</html>

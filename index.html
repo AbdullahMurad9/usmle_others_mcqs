@@ -1,0 +1,1620 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Offline MCQ Test (40 Questions)</title>
+    <style>
+    * {
+  box-sizing: border-box;
+}
+      :root {
+        --text: #0b0f14;
+        --panel: #e8eef8;
+        --card: #e8eef9;
+        --bg: #e8eef7;
+        --muted: #03101d;
+        --border: #2c76b3;
+        --good: #2ecc71;
+        --bad: #e74c3c;
+        --warn: #f1c40f;
+        --link: #7ab7ff;
+      }
+      body {
+        font-size: 20px;
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      a {
+        color: var(--link);
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 18px;
+      }
+.study-panel {
+  width: 100%;
+}
+
+.study-box {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--panel);
+}
+.column > div {
+  margin-bottom: 12px;
+}
+      header {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      header h1 {
+        font-size: 18px;
+        margin: 0;
+        font-weight: 700;
+      }
+      header .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 12px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+      }
+      .row > * {
+        flex: 1 1 170px;
+      }
+      label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      input[type="text"],
+      select {
+        width: 100%;
+        padding: 12px 14px;
+  font-size: 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        outline: none;
+      }
+      button {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #e8eef3;
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button:hover {
+        filter: brightness(1.05);
+      }
+      button.primary {
+        background: #e8eef9;
+        border-color: #2b4e86;
+      }
+      button.danger {
+        background: #fcf9f9;
+        border-color: #6b2222;
+      }
+      button.ghost {
+        background: transparent;
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pill {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--muted);
+        font-size: 12px;
+      }
+   .grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 18px;
+  align-items: start;
+}
+      @media (max-width: 900px) {
+        .grid2 {
+          grid-template-columns: 1fr;
+        }
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+      #statusBar {
+        display: none;
+        margin-top: 8px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #e8eef8;
+      }
+      #statusBar.warn {
+        border-color: #5a4b1b;
+        background: #1f1a0b;
+        color: #f7e9b3;
+      }
+      #statusBar.ok {
+        border-color: #1b5a36;
+        background: #0b1f12;
+        color: #b9f3d0;
+      }
+      #test {
+        display: none;
+      }
+      #qTop {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      #qCounter {
+        font-weight: 700;
+      }
+      #progress {
+        height: 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        overflow: hidden;
+      }
+      #progress > div {
+        height: 100%;
+        width: 0%;
+        background: #e8eef8;
+      }
+      #question {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 450;
+  font-size: 22px;
+  line-height: 1.5;
+      }
+      #options {font-weight: 450;
+        font-size: 22px;
+        line-height: 1.6;
+        margin-top: 10px;
+      }
+      .opt {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+      .opt input {
+        margin-top: 4px;
+      }
+      .opt.correct {
+        border-color: rgba(46, 204, 113, 0.8);
+        box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.25) inset;
+      }
+      .opt.wrongpick {
+        border-color: rgba(231, 76, 60, 0.8);
+        box-shadow: 0 0 0 1px rgba(231, 76, 60, 0.25) inset;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      #feedback {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--card);
+      }
+      #feedback.good {
+        border-color: rgba(46, 204, 113, 0.8);
+      }
+      #feedback.bad {
+        border-color: rgba(231, 76, 60, 0.8);
+      }
+      details {
+        margin-top: 10px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+        padding: 10px;
+      }
+      details summary {font-size: large;
+        cursor: pointer;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      #results {
+        display: none;
+      }
+      .kpi {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .kpi .box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        min-width: 160px;
+      }
+      .kpi .num {
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .kpi .lbl {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      td,
+      th {
+        border-bottom: 1px solid var(--border);
+        padding: 8px;
+        vertical-align: top;
+      }
+      th {
+        text-align: left;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .table-default-style {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table-default-style td {
+        border: 1px solid var(--border);
+        padding: 8px;
+      }
+body {
+  font-size: 20px;
+}
+
+#question {
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+.opt div {
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+input, select, button {
+  font-size: 15px;
+}
+.topic-block { margin-bottom: 14px; }
+      .topic-main {
+        font-weight: 700; font-size: 15px;
+        color: #1a3a5c; margin-bottom: 6px;
+        cursor: pointer; user-select: none;
+      }
+      .topic-main:hover { text-decoration: underline; }
+      .topic-sub { margin-left: 14px; margin-bottom: 10px; }
+      .topic-sub-heading {
+        font-weight: 600; font-size: 13px;
+        color: #2c76b3; margin-bottom: 4px;
+        margin-top: 6px;
+      }
+      .topic-row { margin-left: 14px; margin-bottom: 6px; }
+      .topic-row-label {
+        font-size: 12px; color: #444;
+        display: flex; justify-content: space-between;
+        margin-bottom: 3px;
+      }
+      .topic-row-label span { font-weight: 600; }
+      .topic-progress-bar {
+        height: 8px; border-radius: 999px;
+        background: #d0dce8; overflow: hidden;
+      }
+      .topic-progress-bar > div {
+        height: 100%; border-radius: 999px;
+        background: #2c76b3; transition: width 0.4s;
+      }
+      .topic-progress-bar > div.high { background: #2ecc71; }
+      .topic-progress-bar > div.mid { background: #f1c40f; }
+      .topic-progress-bar > div.low { background: #e74c3c; }
+      .topic-acc {
+        font-size: 11px; color: #888; margin-top: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>
+            Offline MCQ Test <span class="pill">40 questions per test</span>
+          </h1>
+          <div class="meta" id="metaLine">Loading…</div>
+        </div>
+        <div class="small">
+          Progress is saved in your browser (localStorage). Works offline.
+        </div>
+      </header>
+
+      <div class="panel">
+        <div class="grid2">
+          <div>
+            <div class="column">
+              <div>
+                <label for="topicInput">Topic / Deck (optional)</label>
+                <input
+                  id="topicInput"
+                  type="text"
+                  list="deckList"
+                  placeholder="All topics"
+                />
+                <datalist id="deckList"></datalist>
+                <div class="small">
+                  Tip: type part of a deck name. Leave empty for all.
+                </div>
+              </div>
+              
+              <div>
+                <label for="subTopicSelect">Sub heading (optional)</label>
+                <select id="subTopicSelect">
+                  <option value="">All sub headings</option>
+                </select>
+                <div class="small">
+                  Select sub heading after choosing main topic.
+                </div>
+              </div>
+
+              <div>
+                <label for="subSubTopicSelect">Sub topic (optional)</label>
+                <select id="subSubTopicSelect">
+                  <option value="">All sub topics</option>
+                </select>
+                <div class="small">
+                  Select sub topic after choosing sub heading.
+                </div>
+              </div>
+              <div>
+                <label for="poolSelect">Pick 40 from</label>
+                <select id="poolSelect">
+                  <option value="unattempted">Unattempted</option>
+                  <option value="attempted">Attempted (any)</option>
+                  <option value="wrongOnly">
+                    Attempted — only wrong so far
+                  </option>
+                  <option value="correctOnly">
+                    Attempted — only correct so far
+                  </option>
+                  <option value="all">All questions</option>
+                  <option value="lastTestWrong">
+                    Last test — wrong questions
+                  </option>
+                  <option value="lastTestAll">Last test — same 40</option>
+                </select>
+                <div class="small" id="poolInfo"></div>
+              </div>
+              <div>
+               <label for="testNameInput">Test Name</label>
+                <input
+                  id="testNameInput"
+                  type="text"
+                  placeholder="e.g. CVS Mock 1"
+                      />
+                 </div>
+              <div style="flex: 0 0 auto">
+                <button class="primary" id="startBtn">Start Test</button>
+              </div>
+            </div>
+
+            <div id="statusBar"></div>
+
+            <div class="row" style="margin-top: 10px">
+              <div class="kpi" style="width: 100%">
+                <div class="box">
+                  <div class="num" id="statAttempted">0</div>
+                  <div class="lbl">Questions attempted</div>
+                </div>
+                <div class="box">
+                  <div class="num" id="statCorrect">0</div>
+                  <div class="lbl">Total correct (all attempts)</div>
+                </div>
+                <div class="box">
+                  <div class="num" id="statWrong">0</div>
+                  <div class="lbl">Total wrong (all attempts)</div>
+                </div>
+                <div class="box">
+                  <div class="num" id="statAcc">0%</div>
+                  <div class="lbl">Accuracy</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="study-panel">
+  <label>Study record</label>
+  <div class="study-box">
+              <div class="small">
+                This is your <b>personal</b> progress data stored in the
+                browser. It is not uploaded anywhere. Use reset to clear it.
+              </div>
+              <div class="actions" style="margin-top: 10px">
+                <button id="exportBtn">Export progress</button>
+                <button id="importBtn">Import progress</button>
+                <input
+                  id="importFile"
+                  class="hidden"
+                  type="file"
+                  accept="application/json"
+                />
+                <button class="danger" id="resetBtn">Reset study record</button>
+              </div>
+              <div class="small" style="margin-top: 10px">
+                If you open this on another device/browser, progress won’t
+                transfer unless you export/import.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="test">
+        <div id="qTop">
+          <div>
+            <div id="qCounter">Q 1 / 40</div>
+            <div class="small" id="qDeck"></div>
+          </div>
+          <div style="min-width: 220px; width: 40%">
+            <div id="progress"><div></div></div>
+            <div class="small" id="progressText" style="margin-top: 6px"></div>
+          </div>
+        </div>
+
+        <div id="question"></div>
+        <form id="options"></form>
+
+        <div class="actions">
+          <button class="primary" id="submitBtn" type="button">Submit</button>
+          <button id="prevBtn" type="button" class="hidden">Previous</button>
+          <button id="nextBtn" type="button" class="hidden">Next</button>
+          <button id="finishBtn" type="button" class="hidden">Finish</button>
+          <button class="ghost" id="quitBtn" type="button">Quit test</button>
+        </div>
+
+        <div id="feedback" class="hidden"></div>
+        <details id="explainWrap" class="hidden">
+          <summary>Explanation</summary>
+          <div id="explanation"></div>
+        </details>
+      </div>
+
+      <div class="panel" id="results">
+        <h2 style="margin: 0 0 8px 0; font-size: 16px">Results</h2>
+        <div class="kpi" style="margin-bottom: 10px">
+          <div class="box">
+            <div class="num" id="resCorrect">0</div>
+            <div class="lbl">Correct</div>
+          </div>
+          <div class="box">
+            <div class="num" id="resWrong">0</div>
+            <div class="lbl">Wrong</div>
+          </div>
+          <div class="box">
+            <div class="num" id="resUnanswered">0</div>
+            <div class="lbl">Unanswered</div>
+          </div>
+          <div class="box">
+            <div class="num" id="resScore">0%</div>
+            <div class="lbl">Score</div>
+          </div>
+   
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="againWrongBtn" type="button">
+            Do 40 from “wrong so far”
+          </button>
+          <button id="againUnattemptedBtn" type="button">
+            Do 40 from “unattempted”
+          </button>
+          <button id="againSameBtn" type="button">Repeat same 40</button>
+          <button class="ghost" id="backBtn" type="button">Back</button>
+        </div>
+
+        <div style="margin-top: 12px" class="small" id="resNote"></div>
+
+        <div style="margin-top: 10px">
+          <details>
+            <summary>Show wrong questions from this test</summary>
+            <div id="wrongList" style="margin-top: 10px"></div>
+          </details>
+        </div>
+       </div>
+        <div class="panel">
+        <h2 style="font-size:16px;">📊 Topic Progress</h2>
+        <div id="topicProgressList"></div>
+      </div>
+
+        <div class="panel">
+        <h2 style="font-size:16px;">📚 Test Library</h2>
+        <div id="testLibraryList"></div>
+      </div>
+    </div>
+
+    <!-- IMPORTANT: mcqs.js must be in the same folder as this index.html -->
+    <script src="mcqs.js"></script>
+
+    <script>
+      "use strict";
+
+      const TEST_SIZE = 40;
+      const STORAGE_KEY = "mcqStudyRecord_v1";
+const JSONBIN_BIN_ID = "69ae939bd0ea881f40ff8f88";
+const JSONBIN_API_KEY = "$2a$10$chr8amG4QHqGXw3TRyWj1uTEvTFCzUlcmrONNWTclUMvp1q2ViyJe";
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/69ae939bd0ea881f40ff8f88`;
+
+      const MCQS = (window.MCQS || []).map((q) => ({
+        id: q.i,
+        deck: q.d || "",
+        tags: q.t || [],
+        questionHtml: q.q || "",
+        optionsHtml: q.o || [],
+        correctIndex: q.a,
+        correctText: q.at || "",
+        explanationHtml: q.e || "",
+      }));
+      const META = window.MCQS_META || {};
+
+      const el = (id) => document.getElementById(id);
+
+      function setStatus(msg, kind = "warn", autoHideMs = 0) {
+        const bar = el("statusBar");
+        bar.textContent = msg;
+        bar.style.display = "block";
+        bar.className = "";
+        bar.id = "statusBar";
+        bar.classList.add(kind === "ok" ? "ok" : "warn");
+        if (autoHideMs > 0)
+          setTimeout(() => {
+            bar.style.display = "none";
+          }, autoHideMs);
+      }
+
+      function safeJsonParse(s, fallback) {
+        try {
+          return JSON.parse(s);
+        } catch (e) {
+          return fallback;
+        }
+      }
+
+      function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  const st = safeJsonParse(raw, null) || { v: 1, byId: {}, lastTest: null, testLibrary: [] };
+  if (!st.testLibrary) st.testLibrary = [];
+  if (!st.byId) st.byId = {};
+  return st;
+}
+let state = loadState();
+
+async function syncFromServer() {
+  try {
+    const res = await fetch(JSONBIN_URL + "/latest", {
+      headers: { "X-Master-Key": JSONBIN_API_KEY }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const remote = data.record;
+    if (!remote || !remote.byId) return;
+    for (const id in remote.byId) {
+      const r = remote.byId[id];
+      const local = state.byId[id];
+      if (!local || (r.a || 0) >= (local.a || 0)) {
+        state.byId[id] = r;
+      }
+    }
+    if (remote.testLibrary && remote.testLibrary.length > state.testLibrary.length) {
+      state.testLibrary = remote.testLibrary;
+    }
+    if (remote.lastTest) state.lastTest = remote.lastTest;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderStats();
+    refreshPoolInfo();
+    setStatus("Progress synced ✓", "ok", 3000);
+  } catch (e) {
+    setStatus("Could not sync from server. Using local data.", "warn", 4000);
+  }
+}
+
+let _saveTimer = null;
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(async () => {
+    try {
+      await fetch(JSONBIN_URL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": JSONBIN_API_KEY
+        },
+        body: JSON.stringify(state)
+      });
+    } catch (e) {}
+  }, 1500);
+}
+
+      function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function buildDeckList() {
+        const dl = el("deckList");
+        const deckSet = new Set(MCQS.map((q) => q.deck).filter(Boolean));
+        const decks = Array.from(deckSet).sort((a, b) => a.localeCompare(b));
+        dl.innerHTML = "";
+
+        const top = new Set();
+        for (const d of decks) {
+          const first = d.split("::")[0].trim();
+          if (first) top.add(first);
+        }
+        const tops = Array.from(top).sort((a, b) => a.localeCompare(b));
+
+        for (const t of tops) {
+          const opt = document.createElement("option");
+          opt.value = t;
+          dl.appendChild(opt);
+        }
+        for (const d of decks) {
+          const opt = document.createElement("option");
+          opt.value = d;
+          dl.appendChild(opt);
+        }
+      }
+
+      /// subheading filter
+      function getMainHeading(deck) {
+  return (deck || "").split("::")[0]?.trim() || "";
+}
+
+function getSubHeading(deck) {
+  return (deck || "").split("::")[1]?.trim() || "";
+}
+
+function buildSubHeadingList(mainHeading) {
+  const select = el("subTopicSelect");
+  select.innerHTML = `<option value="">All sub headings</option>`;
+
+  if (!mainHeading) return;
+
+  const set = new Set();
+
+  MCQS.forEach((q) => {
+    const main = getMainHeading(q.deck);
+    const sub = getSubHeading(q.deck);
+    if (main.toLowerCase() === mainHeading.toLowerCase() && sub) {
+      set.add(sub);
+    }
+  });
+
+  [...set].sort((a, b) => a.localeCompare(b)).forEach((sub) => {
+    const opt = document.createElement("option");
+    opt.value = sub;
+    opt.textContent = sub;
+    select.appendChild(opt);
+  });
+}
+/// end of subheading filter
+
+/// sub topic filter
+
+function getSubSubHeading(deck) {
+  return (deck || "").split("::")[2]?.trim() || "";
+}
+
+function buildSubSubHeadingList(mainHeading, subHeading) {
+  const select = el("subSubTopicSelect");
+  select.innerHTML = `<option value="">All sub topics</option>`;
+
+  if (!mainHeading || !subHeading) return;
+
+  const set = new Set();
+
+  MCQS.forEach((q) => {
+    const main = getMainHeading(q.deck);
+    const sub = getSubHeading(q.deck);
+    const subsub = getSubSubHeading(q.deck);
+
+    if (
+      main.toLowerCase() === mainHeading.toLowerCase() &&
+      sub.toLowerCase() === subHeading.toLowerCase() &&
+      subsub
+    ) {
+      set.add(subsub);
+    }
+  });
+
+  [...set].sort((a, b) => a.localeCompare(b)).forEach((s) => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    select.appendChild(opt);
+  });
+}
+/// end of sub topic filter
+
+      function computeStats() {
+        const byId = state.byId || {};
+        const attempted = Object.keys(byId).length;
+        let correct = 0,
+          wrong = 0;
+        for (const k in byId) {
+          const r = byId[k];
+          correct += r.c || 0;
+          wrong += r.w || 0;
+        }
+        const total = correct + wrong;
+        const acc = total ? Math.round((correct / total) * 100) : 0;
+        return { attempted, correct, wrong, acc };
+      }
+
+      function renderStats() {
+        const s = computeStats();
+        el("statAttempted").textContent = s.attempted;
+        el("statCorrect").textContent = s.correct;
+        el("statWrong").textContent = s.wrong;
+        el("statAcc").textContent = s.acc + "%";
+        renderTopicProgress();
+      }
+
+      // function topicMatches(q, topic) {
+      //   if (!topic) return true;
+      //   const t = topic.trim().toLowerCase();
+      //   if (!t) return true;
+      //   if (q.deck.toLowerCase() === t) return true;
+      //   const first = (q.deck.split("::")[0] || "").trim().toLowerCase();
+      //   if (first && first === t) return true;
+      //   if (q.deck.toLowerCase().includes(t)) return true;
+      //   if ((q.tags || []).some((tag) => String(tag).toLowerCase().includes(t)))
+      //     return true;
+      //   return false;
+      // }
+
+      // function topicMatches(q, mainTopic, subTopic) {
+      //   if (!mainTopic && !subTopic) return true;
+
+      //   const deck = (q.deck || "").toLowerCase();
+      //   const main = getMainHeading(q.deck).toLowerCase();
+      //   const sub = getSubHeading(q.deck).toLowerCase();
+
+      //   if (mainTopic && main !== mainTopic.toLowerCase()) return false;
+      //   if (subTopic && sub !== subTopic.toLowerCase()) return false;
+
+      //   return true;
+      // }
+
+      function topicMatches(q, mainTopic, subTopic, subSubTopic) {
+        if (!mainTopic && !subTopic && !subSubTopic) return true;
+
+        const main = getMainHeading(q.deck).toLowerCase();
+        const sub = getSubHeading(q.deck).toLowerCase();
+        const subsub = getSubSubHeading(q.deck).toLowerCase();
+
+        if (mainTopic && main !== mainTopic.toLowerCase()) return false;
+        if (subTopic && sub !== subTopic.toLowerCase()) return false;
+        if (subSubTopic && subsub !== subSubTopic.toLowerCase()) return false;
+
+        return true;
+      }
+
+      function getRecord(id) {
+        return (
+          state.byId[String(id)] || {
+            a: 0,
+            c: 0,
+            w: 0,
+            lc: null,
+            lr: null,
+            ls: null,
+          }
+        );
+      }
+
+      function poolFilter(q, pool) {
+        const r = getRecord(q.id);
+        const attempted = (r.a || 0) > 0;
+        if (pool === "all") return true;
+        if (pool === "unattempted") return !attempted;
+        if (pool === "attempted") return attempted;
+        if (pool === "wrongOnly")
+          return attempted && (r.c || 0) === 0 && (r.w || 0) > 0;
+        if (pool === "correctOnly")
+          return attempted && (r.w || 0) === 0 && (r.c || 0) > 0;
+        return true;
+      }
+
+      // function getEligibleQuestions() {
+      //   // const topic = el("topicInput").value || "";
+      //   const opic = el("topicInput").value || "";
+      //   const subTopic = el("subTopicSelect").value || "";
+      //   const pool = el("poolSelect").value;
+
+      //   if (pool === "lastTestWrong") {
+      //     const ids =
+      //       state.lastTest && state.lastTest.wrongIds
+      //         ? state.lastTest.wrongIds
+      //         : [];
+      //     const set = new Set(ids);
+      //     return MCQS.filter((q) => set.has(q.id) && topicMatches(q, topic));
+      //   }
+      //   if (pool === "lastTestAll") {
+      //     const ids =
+      //       state.lastTest && state.lastTest.ids ? state.lastTest.ids : [];
+      //     const set = new Set(ids);
+      //     return MCQS.filter((q) => set.has(q.id) && topicMatches(q, topic));
+      //   }
+      //   return MCQS.filter(
+      //     (q) => topicMatches(q, topic) && poolFilter(q, pool),
+      //   );
+      // }
+
+      // function getEligibleQuestions() {
+      //   const mainTopic = el("topicInput").value || "";
+      //   const subTopic = el("subTopicSelect").value || "";
+      //   const pool = el("poolSelect").value;
+
+      //   if (pool === "lastTestWrong") {
+      //     const ids = state.lastTest?.wrongIds || [];
+      //     const set = new Set(ids);
+      //     return MCQS.filter((q) => set.has(q.id) && topicMatches(q, mainTopic, subTopic));
+      //   }
+
+      //   if (pool === "lastTestAll") {
+      //     const ids = state.lastTest?.ids || [];
+      //     const set = new Set(ids);
+      //     return MCQS.filter((q) => set.has(q.id) && topicMatches(q, mainTopic, subTopic));
+      //   }
+
+      //   return MCQS.filter(
+      //     (q) => topicMatches(q, mainTopic, subTopic) && poolFilter(q, pool),
+      //   );
+      // }
+
+      function getEligibleQuestions() {
+        const mainTopic = el("topicInput").value || "";
+        const subTopic = el("subTopicSelect").value || "";
+        const subSubTopic = el("subSubTopicSelect").value || "";
+        const pool = el("poolSelect").value;
+
+        if (pool === "lastTestWrong") {
+          const ids = state.lastTest?.wrongIds || [];
+          const set = new Set(ids);
+          return MCQS.filter((q) =>
+            set.has(q.id) &&
+            topicMatches(q, mainTopic, subTopic, subSubTopic)
+          );
+        }
+
+        if (pool === "lastTestAll") {
+          const ids = state.lastTest?.ids || [];
+          const set = new Set(ids);
+          return MCQS.filter((q) =>
+            set.has(q.id) &&
+            topicMatches(q, mainTopic, subTopic, subSubTopic)
+          );
+        }
+
+        return MCQS.filter(
+          (q) =>
+            topicMatches(q, mainTopic, subTopic, subSubTopic) &&
+            poolFilter(q, pool),
+        );
+      }
+
+      function refreshPoolInfo() {
+        const pool = el("poolSelect").value;
+        const elig = getEligibleQuestions();
+        const txt =
+          pool.startsWith("lastTest") &&
+          (!state.lastTest ||
+            !state.lastTest.ids ||
+            state.lastTest.ids.length === 0)
+            ? "No saved “last test” yet."
+            : elig.length + " available in this selection.";
+        el("poolInfo").textContent = txt;
+      }
+
+      let session = null;
+
+      function getQuestionById(id) {
+        return MCQS.find((q) => q.id === id);
+      }
+
+      function renderQuestion() {
+        const total = session.ids.length;
+        const qid = session.ids[session.idx];
+        const q = getQuestionById(qid);
+
+        const n = session.idx + 1;
+        el("qCounter").textContent = `Q ${n} / ${total}`;
+        el("qDeck").textContent = q.deck ? "Deck: " + q.deck : "";
+        const pct = Math.round(((n - 1) / total) * 100);
+        el("progress").firstElementChild.style.width = pct + "%";
+        el("progressText").textContent =
+          `Answered: ${Object.keys(session.answers).length} / ${total}`;
+
+        el("question").innerHTML = q.questionHtml || "<i>(empty)</i>";
+
+        const form = el("options");
+        form.innerHTML = "";
+        q.optionsHtml.forEach((optHtml, i) => {
+          const idx = i + 1;
+          const div = document.createElement("label");
+          div.className = "opt";
+          div.setAttribute("data-idx", String(idx));
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = "opt";
+          input.value = String(idx);
+
+          const content = document.createElement("div");
+          content.innerHTML = optHtml || "";
+
+          div.appendChild(input);
+          div.appendChild(content);
+          div.addEventListener("click", (e) => {
+            if (e.target.tagName.toLowerCase() !== "a") input.checked = true;
+          });
+
+          form.appendChild(div);
+        });
+
+        el("feedback").style.display = "none";
+        el("explainWrap").classList.add("hidden");
+        el("explanation").innerHTML = "";
+
+        el("submitBtn").classList.remove("hidden");
+        el("nextBtn").classList.add("hidden");
+        el("finishBtn").classList.add("hidden");
+        if (session.idx > 0) el("prevBtn").classList.remove("hidden");
+        else el("prevBtn").classList.add("hidden");
+
+        const already = session.answers[qid];
+        if (already) {
+          if (already && already.choice != null) {
+          // already answered — lock and show result
+          const radios = el("options").querySelectorAll("input[type=radio]");
+          radios.forEach(r => r.disabled = true);
+          const r = el("options").querySelector(`input[value="${already.choice}"]`);
+          if (r) r.checked = true;
+          markOptions(getQuestionById(qid), already.choice);
+          el("submitBtn").classList.add("hidden");
+          el("explainWrap").classList.remove("hidden");
+          el("explanation").innerHTML = getQuestionById(qid).explanationHtml || "<i>(No explanation)</i>";
+          let msg = already.correct === true ? "Correct ✅" : "Wrong ❌";
+          let cls = already.correct === true ? "good" : "bad";
+          el("feedback").textContent = msg;
+          el("feedback").style.display = "block";
+          el("feedback").className = cls;
+          if (session.idx < session.ids.length - 1)
+          el("nextBtn").classList.remove("hidden");
+          else el("finishBtn").classList.remove("hidden");
+          }
+         }
+        if (session.idx > 0) el("prevBtn").classList.remove("hidden");
+        else el("prevBtn").classList.add("hidden");
+
+        if (session.mode === "review") {
+          const saved = session.answers[q.id];
+          const picked = saved ? saved.choice : null;
+
+          // restore selected radio visually
+          if (picked != null) {
+            const r = el("options").querySelector(`input[value="${picked}"]`);
+            if (r) r.checked = true;
+          }
+
+          // lock all options so they can't be changed
+          const radios = el("options").querySelectorAll("input[type=radio]");
+          radios.forEach(r => r.disabled = true);
+
+          markOptions(q, picked);
+          el("submitBtn").classList.add("hidden");
+          el("explainWrap").classList.remove("hidden");
+          el("explanation").innerHTML = q.explanationHtml || "<i>(No explanation)</i>";
+
+          // show correct/wrong feedback
+          if (picked != null) {
+            let msg = saved.correct === true ? "Correct ✅" : "Wrong ❌";
+            let cls = saved.correct === true ? "good" : "bad";
+            el("feedback").textContent = msg;
+            el("feedback").style.display = "block";
+            el("feedback").className = cls;
+          } else {
+            el("feedback").textContent = "You skipped this question.";
+            el("feedback").style.display = "block";
+            el("feedback").className = "";
+          }
+
+          if (session.idx < session.ids.length - 1)
+            el("nextBtn").classList.remove("hidden");
+          else el("finishBtn").classList.remove("hidden");
+        }
+      }
+
+      function getSelectedIndex() {
+        const checked = el("options").querySelector(
+          "input[type=radio]:checked",
+        );
+        return checked ? Number(checked.value) : null;
+      }
+
+      function markOptions(q, pickedIdx) {
+        const optionEls = Array.from(el("options").querySelectorAll(".opt"));
+        for (const optEl of optionEls) {
+          const idx = Number(optEl.getAttribute("data-idx"));
+          optEl.classList.remove("correct", "wrongpick");
+          if (q.correctIndex && idx === q.correctIndex)
+            optEl.classList.add("correct");
+          if (
+            pickedIdx &&
+            idx === pickedIdx &&
+            q.correctIndex &&
+            pickedIdx !== q.correctIndex
+          )
+            optEl.classList.add("wrongpick");
+        }
+      }
+
+      function submitAnswer() {
+        const qid = session.ids[session.idx];
+        const q = getQuestionById(qid);
+        const picked = getSelectedIndex();
+
+        // if already answered before, don't re-count in stats
+        const alreadyAnswered = session.answers[qid] && session.answers[qid].choice != null;
+
+        let isCorrect = null;
+        if (picked == null) isCorrect = null;
+        else if (q.correctIndex != null) isCorrect = picked === q.correctIndex;
+
+        session.answers[qid] = { choice: picked, correct: isCorrect };
+
+        const key = String(qid);
+        if (!alreadyAnswered) {
+          const r = state.byId[key] || {
+            a: 0, c: 0, w: 0, lc: null, lr: null, ls: null,
+          };
+          r.a = (r.a || 0) + 1;
+          r.lc = picked;
+          r.ls = Date.now();
+          if (isCorrect === true) {
+            r.c = (r.c || 0) + 1;
+            r.lr = true;
+          } else if (isCorrect === false) {
+            r.w = (r.w || 0) + 1;
+            r.lr = false;
+          } else {
+            r.lr = null;
+          }
+          state.byId[key] = r;
+          saveState();
+          renderStats();
+        }
+
+        let msg = "Unanswered.";
+        let cls = "";
+        if (picked != null && isCorrect === true) {
+          msg = "Correct ✅";
+          cls = "good";
+        } else if (picked != null && isCorrect === false) {
+          msg = "Wrong ❌";
+          cls = "bad";
+        }
+
+        el("feedback").textContent = msg;
+        el("feedback").style.display = "block";
+        el("feedback").className = cls ? " " + cls : "";
+
+        markOptions(q, picked);
+        el("explanation").innerHTML =
+          q.explanationHtml || "<i>(No explanation)</i>";
+        el("explainWrap").classList.remove("hidden");
+
+        el("submitBtn").classList.add("hidden");
+        if (session.idx < session.ids.length - 1)
+          el("nextBtn").classList.remove("hidden");
+        else el("finishBtn").classList.remove("hidden");
+      }
+
+      function nextQuestion() {
+        session.idx += 1;
+        renderQuestion();
+      }
+      function prevQuestion() {
+        session.idx -= 1;
+        renderQuestion();
+      }
+      function finishTest() {
+        let correct = 0,
+          wrong = 0,
+          unanswered = 0;
+        const wrongIds = [],
+          correctIds = [];
+
+        for (const id of session.ids) {
+          const a = session.answers[id];
+          if (!a || a.choice == null) unanswered++;
+          else if (a.correct === true) {
+            correct++;
+            correctIds.push(id);
+          } else {
+            wrong++;
+            wrongIds.push(id);
+          }
+        }
+        const total = session.ids.length;
+        const score = total ? Math.round((correct / total) * 100) : 0;
+
+        state.lastTest = {
+          ids: session.ids.slice(),
+          wrongIds,
+          correctIds,
+          finishedAt: Date.now(),
+        };
+        saveState();
+         // ✅ Save to Test Library
+state.testLibrary.push({
+  name: session.name || "Unnamed Test",
+  ids: session.ids.slice(),
+  answers: session.answers,
+  correct,
+  wrong,
+  unanswered,
+  score,
+  finishedAt: Date.now()
+});
+
+saveState();
+renderTestLibrary();
+
+        el("test").style.display = "none";
+        el("results").style.display = "block";
+        el("resCorrect").textContent = correct;
+        el("resWrong").textContent = wrong;
+        el("resUnanswered").textContent = unanswered;
+        el("resScore").textContent = score + "%";
+        el("resNote").textContent = `Saved “last test” (same 40 + wrong list).`;
+
+        refreshPoolInfo();
+        renderStats();
+        session = null;
+      }
+
+      function startTest() {
+        const elig = getEligibleQuestions();
+        if (elig.length === 0) {
+          setStatus("No questions match your selection.", "warn");
+          return;
+        }
+
+        const picked = shuffleInPlace(elig.slice()).slice(0, TEST_SIZE);
+        const testName = el("testNameInput").value.trim() || 
+                 "Test " + new Date().toLocaleString();
+
+        const newSession = { 
+          ids: picked.map((q) => q.id), 
+          idx: 0, 
+          answers: {},
+          name: testName,
+          topic: el("topicInput").value.trim() || "All Topics",
+          subTopic: el("subTopicSelect").value.trim() || "",
+          subSubTopic: el("subSubTopicSelect").value.trim() || ""
+        };
+
+        localStorage.setItem("mcq_active_session", JSON.stringify(newSession));
+        window.open("test.html", "_blank");
+      }
+
+      function quitTest() {
+        if (!session) return;
+        if (confirm("Save this test to library before quitting?")) {
+          let correct = 0, wrong = 0, unanswered = 0;
+          for (const id of session.ids) {
+            const a = session.answers[id];
+            if (!a || a.choice == null) unanswered++;
+            else if (a.correct === true) correct++;
+            else wrong++;
+          }
+          const total = session.ids.length;
+          const score = total ? Math.round((correct / total) * 100) : 0;
+          state.testLibrary.push({
+            name: session.name || "Unnamed Test",
+            ids: session.ids.slice(),
+            answers: session.answers,
+            correct,
+            wrong,
+            unanswered,
+            score,
+            finishedAt: Date.now()
+          });
+          saveState();
+          renderTestLibrary();
+          renderTopicProgress();
+        }
+        session = null;
+        el("test").style.display = "none";
+      }
+
+      function downloadJson(obj, filename) {
+        const blob = new Blob([JSON.stringify(obj, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportProgress() {
+        downloadJson(
+          { exportedAt: new Date().toISOString(), state },
+          "mcq_progress.json",
+        );
+      }
+
+      function importProgressFromFile(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const data = safeJsonParse(reader.result, null);
+          if (!data || !data.state || !data.state.byId) {
+            setStatus("Import failed.", "warn");
+            return;
+          }
+          state = data.state;
+          saveState();
+          renderStats();
+          refreshPoolInfo();
+          setStatus("Progress imported.", "ok", 1200);
+        };
+        reader.readAsText(file);
+      }
+
+      function resetRecord() {
+        if (!confirm("Reset study record?")) return;
+        state = { v: 1, byId: {}, lastTest: null, testLibrary: [] };
+        saveState();
+        renderStats();
+        refreshPoolInfo();
+        renderTestLibrary();
+        setStatus("Study record reset.", "ok", 1200);
+      }
+
+      function init() {
+        el("metaLine").textContent =
+          `${MCQS.length} questions loaded. Source: ${META.generated_from || "mcqs.js"}.`;
+        buildDeckList();
+        renderStats();
+        refreshPoolInfo();
+        renderTestLibrary();
+
+        el("startBtn").addEventListener("click", startTest);
+        el("poolSelect").addEventListener("change", refreshPoolInfo);
+        el("topicInput").addEventListener("input", () =>
+          setTimeout(refreshPoolInfo, 100),
+        );
+
+        el("prevBtn").addEventListener("click", prevQuestion);
+        el("submitBtn").addEventListener("click", submitAnswer);
+        el("nextBtn").addEventListener("click", nextQuestion);
+        el("finishBtn").addEventListener("click", finishTest);
+        el("quitBtn").addEventListener("click", quitTest);
+
+        el("againWrongBtn").addEventListener("click", () => {
+          el("poolSelect").value = "wrongOnly";
+          refreshPoolInfo();
+          startTest();
+        });
+        el("againUnattemptedBtn").addEventListener("click", () => {
+          el("poolSelect").value = "unattempted";
+          refreshPoolInfo();
+          startTest();
+        });
+        el("againSameBtn").addEventListener("click", () => {
+          el("poolSelect").value = "lastTestAll";
+          refreshPoolInfo();
+          startTest();
+        });
+        el("backBtn").addEventListener("click", () => {
+          el("results").style.display = "none";
+        });
+
+        el("exportBtn").addEventListener("click", exportProgress);
+        el("importBtn").addEventListener("click", () =>
+          el("importFile").click(),
+        );
+        el("importFile").addEventListener("change", (e) => {
+          const f = e.target.files && e.target.files[0];
+          if (f) importProgressFromFile(f);
+          e.target.value = "";
+        });
+        el("resetBtn").addEventListener("click", resetRecord);
+
+      //   el("topicInput").addEventListener("input", () => {
+      //   const main = el("topicInput").value.trim();
+      //   buildSubHeadingList(main);
+      //   setTimeout(refreshPoolInfo, 100);
+      // });
+
+      // el("subTopicSelect").addEventListener("change", refreshPoolInfo);
+
+      el("topicInput").addEventListener("input", () => {
+      const main = el("topicInput").value.trim();
+      buildSubHeadingList(main);
+      el("subSubTopicSelect").innerHTML = `<option value="">All sub topics</option>`;
+      setTimeout(refreshPoolInfo, 100);
+    });
+
+    el("subTopicSelect").addEventListener("change", () => {
+      const main = el("topicInput").value.trim();
+      const sub = el("subTopicSelect").value.trim();
+      buildSubSubHeadingList(main, sub);
+      setTimeout(refreshPoolInfo, 100);
+    });
+
+    el("subSubTopicSelect").addEventListener("change", refreshPoolInfo);
+
+        try {
+          localStorage.setItem("__mcq_test__", "1");
+          localStorage.removeItem("__mcq_test__");
+        } catch (e) {
+          setStatus(
+            "Warning: your browser is blocking localStorage for file:// pages. Progress may not save.",
+            "warn",
+          );
+        }
+        syncFromServer();
+      }
+function renderTopicProgress() {
+        const listEl = el("topicProgressList");
+        listEl.innerHTML = "";
+
+        // build topic tree: main -> subheading -> subtopic -> { total, attempted, correct, wrong }
+        const tree = {};
+
+        MCQS.forEach(q => {
+          const main = getMainHeading(q.deck) || "Uncategorized";
+          const sub = getSubHeading(q.deck) || "General";
+          const subsub = getSubSubHeading(q.deck) || "General";
+
+          if (!tree[main]) tree[main] = {};
+          if (!tree[main][sub]) tree[main][sub] = {};
+          if (!tree[main][sub][subsub]) tree[main][sub][subsub] = { total: 0, attempted: 0, correct: 0, wrong: 0 };
+
+          const node = tree[main][sub][subsub];
+          node.total++;
+
+          const r = state.byId[String(q.id)];
+          if (r && (r.a || 0) > 0) {
+            node.attempted++;
+            node.correct += (r.c || 0);
+            node.wrong += (r.w || 0);
+          }
+        });
+
+        const mainTopics = Object.keys(tree).sort();
+
+        if (mainTopics.length === 0) {
+          listEl.textContent = "No topic data available.";
+          return;
+        }
+
+        mainTopics.forEach(main => {
+          const block = document.createElement("div");
+          block.className = "topic-block";
+
+          // compute main topic totals
+          let mainTotal = 0, mainAttempted = 0, mainCorrect = 0;
+          Object.values(tree[main]).forEach(subObj => {
+            Object.values(subObj).forEach(node => {
+              mainTotal += node.total;
+              mainAttempted += node.attempted;
+              mainCorrect += node.correct;
+            });
+          });
+          const mainAcc = mainAttempted > 0 ? Math.round((mainCorrect / mainAttempted) * 100) : null;
+          const mainPct = Math.round((mainAttempted / mainTotal) * 100);
+
+          // main topic header
+          const mainLabel = document.createElement("div");
+          mainLabel.className = "topic-main";
+          mainLabel.textContent = `▶ ${main} (${mainAttempted}/${mainTotal} attempted${mainAcc !== null ? " · " + mainAcc + "% acc" : ""})`;
+
+          const subContainer = document.createElement("div");
+          subContainer.className = "topic-sub";
+          subContainer.style.display = "none";
+
+          mainLabel.addEventListener("click", () => {
+            subContainer.style.display = subContainer.style.display === "none" ? "block" : "none";
+            mainLabel.textContent = mainLabel.textContent.startsWith("▶")
+              ? mainLabel.textContent.replace("▶", "▼")
+              : mainLabel.textContent.replace("▼", "▶");
+          });
+
+          // main progress bar
+          const mainBarWrap = document.createElement("div");
+          mainBarWrap.className = "topic-progress-bar";
+          mainBarWrap.style.marginBottom = "4px";
+          const mainBarFill = document.createElement("div");
+          mainBarFill.style.width = mainPct + "%";
+          mainBarFill.className = mainAcc === null ? "" : mainAcc >= 70 ? "high" : mainAcc >= 50 ? "mid" : "low";
+          mainBarWrap.appendChild(mainBarFill);
+
+          block.appendChild(mainLabel);
+          block.appendChild(mainBarWrap);
+
+          // sub headings
+          Object.keys(tree[main]).sort().forEach(sub => {
+            const subHeadEl = document.createElement("div");
+            subHeadEl.className = "topic-sub-heading";
+            subHeadEl.textContent = sub;
+            subContainer.appendChild(subHeadEl);
+
+            // sub sub topics
+            Object.keys(tree[main][sub]).sort().forEach(subsub => {
+              const node = tree[main][sub][subsub];
+              const acc = node.attempted > 0 ? Math.round((node.correct / node.attempted) * 100) : null;
+              const pct = Math.round((node.attempted / node.total) * 100);
+
+              const row = document.createElement("div");
+              row.className = "topic-row";
+
+              const rowLabel = document.createElement("div");
+              rowLabel.className = "topic-row-label";
+              rowLabel.innerHTML = `<span>${subsub}</span><span>${node.attempted}/${node.total}${acc !== null ? " · " + acc + "% acc" : ""}</span>`;
+
+              const barWrap = document.createElement("div");
+              barWrap.className = "topic-progress-bar";
+              const barFill = document.createElement("div");
+              barFill.style.width = pct + "%";
+              barFill.className = acc === null ? "" : acc >= 70 ? "high" : acc >= 50 ? "mid" : "low";
+              barWrap.appendChild(barFill);
+
+              row.appendChild(rowLabel);
+              row.appendChild(barWrap);
+              subContainer.appendChild(row);
+            });
+          });
+
+          block.appendChild(subContainer);
+          listEl.appendChild(block);
+        });
+      }
+      function renderTestLibrary() {
+  const listEl = el("testLibraryList");
+  listEl.innerHTML = "";
+
+  if (!state.testLibrary || state.testLibrary.length === 0) {
+    listEl.textContent = "No saved tests yet.";
+    return;
+  }
+
+  state.testLibrary.forEach((t, i) => {
+    const div = document.createElement("div");
+    div.style.marginBottom = "8px";
+    div.innerHTML = `
+      <b>${t.name}</b> ${t.paused ? '<span style="color:#e67e22;font-size:12px;">⏸ Paused</span>' : ''}<br>
+      <span style="font-size:12px;color:#555;">📁 ${t.topic || "All Topics"}${t.subTopic ? " › " + t.subTopic : ""}${t.subSubTopic ? " › " + t.subSubTopic : ""}</span>
+      &nbsp;<small style="color:#888;">${new Date(t.finishedAt).toLocaleDateString()}</small><br>
+      Score: ${t.score}% (${t.correct}✅ / ${t.wrong}❌ / ${t.unanswered}❓)<br>
+      ${t.paused 
+        ? `<button onclick="resumePausedTest(${i})">▶ Resume</button>` 
+        : `<button onclick="reviewTest(${i})">Review</button>`
+      }
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+function resumePausedTest(index) {
+  const saved = state.testLibrary[index];
+  if (!saved) return;
+
+  const resumeSession = {
+    ids: saved.ids.slice(),
+    idx: saved.pausedAt || 0,
+    answers: saved.answers,
+    timePerQuestion: saved.timePerQuestion || {},
+    totalTimeElapsed: saved.totalTimeElapsed || 0,
+    name: saved.name,
+    topic: saved.topic || "",
+    subTopic: saved.subTopic || "",
+    subSubTopic: saved.subSubTopic || ""
+  };
+
+  state.testLibrary.splice(index, 1);
+  saveState();
+  renderTestLibrary();
+
+  localStorage.setItem("mcq_active_session", JSON.stringify(resumeSession));
+  window.open("test.html", "_blank");
+}
+function reviewTest(index) {
+  const saved = state.testLibrary[index];
+  if (!saved) return;
+
+  const reviewSession = {
+    ids: saved.ids.slice(),
+    idx: 0,
+    answers: saved.answers,
+    timePerQuestion: saved.timePerQuestion || {},
+    name: saved.name,
+    mode: "review"
+  };
+
+  localStorage.setItem("mcq_active_session", JSON.stringify(reviewSession));
+  window.open("test.html", "_blank");
+}
+
+function deleteTest(index) {
+  if (!confirm("Delete this test?")) return;
+  state.testLibrary.splice(index, 1);
+  saveState();
+  renderTestLibrary();
+}
+      init();
+    </script>
+  </body>
+</html>
